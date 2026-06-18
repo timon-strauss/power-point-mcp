@@ -69,6 +69,13 @@ def create_server(cfg: ServerConfig) -> FastMCP:
         prs = _open()
         return pptx_ops.list_slides(prs)
 
+    @mcp.tool(name="list_layouts")
+    @_safe
+    def list_layouts_tool() -> list[dict]:
+        """List every layout in the master with its idx and placeholder names."""
+        prs = _open()
+        return pptx_ops.list_layouts(prs)
+
     @mcp.tool(name="read_slide")
     @_safe
     def read_slide_tool(slide_index: int) -> dict:

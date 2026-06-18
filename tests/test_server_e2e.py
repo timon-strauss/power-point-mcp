@@ -155,3 +155,13 @@ def test_set_slide_placeholder_bad_index_returns_error(cfg: ServerConfig) -> Non
     )
     assert isinstance(out, dict)
     assert "error" in out
+
+
+def test_list_layouts_via_server(cfg: ServerConfig) -> None:
+    server = create_server(cfg)
+    _call(server, "create_presentation_from_template", overwrite=True)
+    layouts = _call(server, "list_layouts")
+    assert isinstance(layouts, list)
+    assert len(layouts) > 0
+    assert all("name" in entry and "idx" in entry for entry in layouts)
+    assert any(entry["name"] == "Title Slide" for entry in layouts)

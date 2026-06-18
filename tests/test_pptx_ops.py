@@ -223,3 +223,25 @@ def test_set_slide_title_no_title_layout(
     pptx_ops.add_slide(prs, no_title_layout.name, {})
     with pytest.raises(KeyError):
         pptx_ops.set_slide_title(prs, 0, "Title")
+
+
+def test_list_layouts_returns_layouts_with_placeholders(
+    tmp_path: Path, tmp_pptx_template: Path
+) -> None:
+    target = tmp_path / "out.pptx"
+    pptx_ops.create_from_template(tmp_pptx_template, target, overwrite=True)
+    prs = Presentation(str(target))
+
+    layouts = pptx_ops.list_layouts(prs)
+    assert isinstance(layouts, list)
+    assert len(layouts) >= 3
+    names = {entry["name"] for entry in layouts}
+    assert "Title Slide" in names
+    for entry in layouts:
+        assert "name" in entry
+        assert "idx" in entry
+        assert "placeholder_names" in entry
+        assert isinstance(entry["placeholder_names"], list)
+        assert isinstance(entry["idx"], int)
+    # idx values should be 0..N-1 in order
+    assert [entry["idx"] for entry in layouts] == list(range(len(layouts)))

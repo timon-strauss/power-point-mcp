@@ -107,6 +107,21 @@ def summarize_presentation(prs: PresentationType) -> dict:
     }
 
 
+def list_layouts(prs: PresentationType) -> list[dict]:
+    """Return ``[{name, idx, placeholder_names}]`` for every layout in the master."""
+    out: list[dict] = []
+    for idx, layout in enumerate(prs.slide_layouts):
+        placeholder_names = [ph.name or "" for ph in layout.placeholders]
+        out.append(
+            {
+                "name": layout.name or "",
+                "idx": idx,
+                "placeholder_names": placeholder_names,
+            }
+        )
+    return out
+
+
 def list_slides(prs: PresentationType) -> list[dict]:
     """Return a compact summary of every slide."""
     out: list[dict] = []

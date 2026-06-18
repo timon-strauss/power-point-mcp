@@ -5,6 +5,35 @@ All notable changes to power-point-mcp will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] — 2026-06-18
+
+Setup-ergonomics iteration. Easier first-run experience without changing
+the security boundary or runtime behaviour.
+
+### Added
+- `--version` and `--doctor` CLI flags on `power-point-mcp`. `--doctor`
+  validates `PPTX_TARGET`, `PPTX_TEMPLATE`, and dependency versions
+  without starting the server, prefixing each line `[ok]` / `[warn]` /
+  `[fail]` and exiting non-zero on any failure.
+- `.env` file support in `load_config_from_env`. Stdlib parser, no new
+  dependency. Precedence: `os.environ` > `.env`.
+- `.env.example` at repo root as a starting point.
+- `examples/` folder: `build_template.py` (regenerates the template),
+  the generated `template.pptx` (tracked), and `examples/README.md`
+  with a "from clone to first slide" walkthrough.
+- New MCP tool `list_layouts()` — first-class layout discovery
+  (returns name, idx, and placeholder names per layout).
+- New `tests/test_cli.py` covering `--version`, `--doctor` happy/sad
+  paths. Suite is now 45 tests.
+
+### Changed
+- `pyproject.toml`: `version = 0.3.0`.
+- `src/power_point_mcp/__init__.py`: `__version__ = "0.3.0"`.
+- `.gitignore`: ignores `.env` but allows `examples/*.pptx` (intentional
+  fixture).
+- `README.md` and `SETUP.md`: document `.env` workflow, `--doctor`,
+  `--version`, the example template, and the new tool count (11).
+
 ## [0.2.1] — 2026-06-18
 
 Documentation iteration. No runtime changes.

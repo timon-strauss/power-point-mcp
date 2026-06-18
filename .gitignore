@@ -17,3 +17,8 @@ wheels/
 
 # Local PPTX artifacts (templates and target files belong outside the repo)
 *.pptx
+# Tracked example fixture (intentional, not user data)
+!examples/*.pptx
+
+# Local .env files (users keep their own; .env.example is tracked)
+.env

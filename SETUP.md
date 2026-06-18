@@ -8,6 +8,34 @@ document is for the first time, or for debugging a broken install.
 
 ---
 
+## Quick start with the example template
+
+The repo ships a ready-made template under `examples/template.pptx` so a
+fresh clone can run end-to-end without any external assets:
+
+```bash
+git clone <this-repo-url> power-point-mcp
+cd power-point-mcp
+uv sync
+
+# Copy the .env template and edit the two paths to use absolute paths:
+cp .env.example .env
+# .env should contain (use absolute paths):
+#   PPTX_TARGET=/abs/path/to/power-point-mcp/examples/out.pptx
+#   PPTX_TEMPLATE=/abs/path/to/power-point-mcp/examples/template.pptx
+
+# Verify the environment without starting the server:
+uv run power-point-mcp --doctor
+
+# Start the server (stdio transport):
+uv run power-point-mcp
+```
+
+See [`examples/README.md`](examples/README.md) for the full walkthrough,
+including how to regenerate `template.pptx`.
+
+---
+
 ## 1. Prerequisites
 
 | Tool       | Version  | Purpose                          | Install hint                                |
@@ -61,7 +89,7 @@ Confirm the install:
 
 ```bash
 uv run python -c "import power_point_mcp; print(power_point_mcp.__version__)"
-# → 0.2.0
+# → 0.3.0
 ```
 
 ---
@@ -83,7 +111,30 @@ The target file does **not** have to exist yet — call
 
 ## 4. Run the server (manual smoke test)
 
-Before wiring it into Claude Desktop, prove it starts cleanly:
+Before wiring it into Claude Desktop, prove it starts cleanly.
+
+### Recommended: use a `.env` file
+
+The server reads `.env` in the current working directory. Values in
+`os.environ` always win over `.env` so a one-off override on the command
+line still works.
+
+```bash
+cp .env.example .env
+# Edit .env so the two variables point at absolute paths:
+#   PPTX_TARGET=/abs/path/to/deck.pptx
+#   PPTX_TEMPLATE=/abs/path/to/template.pptx
+
+uv run power-point-mcp --doctor   # validate without starting the server
+uv run power-point-mcp            # start the server (stdio)
+```
+
+`--doctor` walks every check the server would run on startup (env vars
+present, files resolvable / readable / right suffix, dependency versions)
+and exits 0 only when everything is OK. `--version` prints the current
+package version.
+
+### Alternative: env vars on the command line
 
 ```bash
 PPTX_TARGET=/abs/path/to/deck.pptx \
@@ -93,7 +144,7 @@ uv run power-point-mcp
 
 You should see no output (the server speaks MCP over stdio and is waiting
 for a client). Press **Ctrl+C** to stop. If you see an error like
-`PPTX_TARGET is not set`, double-check the env var.
+`PPTX_TARGET is not set`, double-check the env var or your `.env` file.
 
 ---
 
@@ -125,10 +176,11 @@ Add (or merge) the following:
 ```
 
 Restart Claude Desktop. In a new conversation you should see the
-`power-point-mcp` server connected with ten tools (`presentation_info`,
-`list_slides`, `read_slide`, `create_presentation_from_template`,
-`add_slide`, `set_slide_placeholder`, `set_slide_placeholder_by_idx`,
-`set_slide_title`, `delete_slide`, `reorder_slide`).
+`power-point-mcp` server connected with eleven tools (`presentation_info`,
+`list_slides`, `list_layouts`, `read_slide`,
+`create_presentation_from_template`, `add_slide`, `set_slide_placeholder`,
+`set_slide_placeholder_by_idx`, `set_slide_title`, `delete_slide`,
+`reorder_slide`).
 
 > Use `--project` so `uv` resolves the right project even when Claude
 > Desktop launches it from an unrelated working directory.
@@ -153,7 +205,7 @@ Claude actually write it to your file.
 ```bash
 uv sync --group dev
 uv run pytest -q
-# → 39 passed in <1 s
+# → 45 passed in <1 s
 ```
 
 The suite is fast and runs entirely against `tmp_path` fixtures — it does

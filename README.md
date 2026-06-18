@@ -38,6 +38,12 @@ The server is bound to a single PPTX file via environment variables:
 
 If `PPTX_TARGET` is unset, the server refuses to start.
 
+You can put these in a `.env` file at the repo root (copy `.env.example`)
+instead of exporting them every time. `os.environ` wins over `.env` so a
+one-off override on the command line still works. Run
+`uv run power-point-mcp --doctor` to validate the environment without
+starting the server.
+
 ## Running locally
 
 ```bash
@@ -71,6 +77,7 @@ Add an entry like this to your Claude Desktop MCP config:
 
 - `presentation_info()` — slide count, dimensions, layouts, master.
 - `list_slides()` — index, layout, title, text snippet for every slide.
+- `list_layouts()` — name, idx, and placeholder names for every layout.
 - `read_slide(slide_index)` — every shape on one slide, with its text.
 - `create_presentation_from_template(overwrite=False)` — initialise the
   bound target from `PPTX_TEMPLATE`.
