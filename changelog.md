@@ -5,6 +5,21 @@ All notable changes to power-point-mcp will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] — 2026-06-18
+
+Documentation iteration. No runtime changes.
+
+### Added
+- `SETUP.md` — step-by-step setup, Claude Desktop wiring, and a
+  troubleshooting section.
+- `CLAUDE.md` — project-internal conventions for future Claude (or
+  agent) sessions: hard rules, layering, workflow, scope.
+- README cross-link to `SETUP.md`.
+
+### Changed
+- `pyproject.toml`: `version = 0.2.1`.
+- `src/power_point_mcp/__init__.py`: `__version__ = "0.2.1"`.
+
 ## [0.2.0] — 2026-06-18
 
 Mutation iteration. Adds the ability to modify and reorder existing slides

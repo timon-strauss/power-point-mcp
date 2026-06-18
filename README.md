@@ -24,6 +24,9 @@ uv sync                  # runtime deps into a local .venv
 uv sync --group dev      # add pytest for running the test suite
 ```
 
+For a step-by-step walkthrough including Claude Desktop wiring and
+troubleshooting, see [`SETUP.md`](SETUP.md).
+
 ## Configuration
 
 The server is bound to a single PPTX file via environment variables:
