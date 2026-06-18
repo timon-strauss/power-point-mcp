@@ -1,0 +1,27 @@
+[project]
+name = "power-point-mcp"
+version = "0.1.0"
+description = "MCP server that lets Claude generate, read, and edit a single PowerPoint file."
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "mcp[cli]>=1.28.0",
+    "python-pptx>=1.0.2",
+]
+
+[project.scripts]
+power-point-mcp = "power_point_mcp.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/power_point_mcp"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[dependency-groups]
+dev = ["pytest>=8"]
