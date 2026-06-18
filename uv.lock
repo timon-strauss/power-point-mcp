@@ -394,7 +394,7 @@ wheels = [
 
 [[package]]
 name = "power-point-mcp"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "mcp", extra = ["cli"] },
@@ -409,7 +409,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "mcp", extras = ["cli"], specifier = ">=1.28.0" },
-    { name = "python-pptx", specifier = ">=1.0.2" },
+    { name = "python-pptx", specifier = ">=1.0.2,<2" },
 ]
 
 [package.metadata.requires-dev]

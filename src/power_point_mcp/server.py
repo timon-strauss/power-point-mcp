@@ -110,4 +110,66 @@ def create_server(cfg: ServerConfig) -> FastMCP:
         prs.save(str(target))
         return result
 
+    def _open_for_write() -> tuple[Any, Any]:
+        target = assert_within_target(cfg.target_path, cfg)
+        if not target.exists():
+            raise FileNotFoundError(
+                f"Bound target does not exist yet: {target}. "
+                "Call create_presentation_from_template first."
+            )
+        return target, Presentation(str(target))
+
+    @mcp.tool(name="set_slide_placeholder")
+    @_safe
+    def set_slide_placeholder_tool(
+        slide_index: int, placeholder_name: str, text: str
+    ) -> dict:
+        """Set a placeholder on an existing slide by its name."""
+        target, prs = _open_for_write()
+        result = pptx_ops.set_slide_placeholder(
+            prs, slide_index, placeholder_name, text
+        )
+        prs.save(str(target))
+        return result
+
+    @mcp.tool(name="set_slide_placeholder_by_idx")
+    @_safe
+    def set_slide_placeholder_by_idx_tool(
+        slide_index: int, placeholder_idx: int, text: str
+    ) -> dict:
+        """Set a placeholder on an existing slide by its layout idx."""
+        target, prs = _open_for_write()
+        result = pptx_ops.set_slide_placeholder_by_idx(
+            prs, slide_index, placeholder_idx, text
+        )
+        prs.save(str(target))
+        return result
+
+    @mcp.tool(name="set_slide_title")
+    @_safe
+    def set_slide_title_tool(slide_index: int, text: str) -> dict:
+        """Set the title placeholder of a slide."""
+        target, prs = _open_for_write()
+        result = pptx_ops.set_slide_title(prs, slide_index, text)
+        prs.save(str(target))
+        return result
+
+    @mcp.tool(name="delete_slide")
+    @_safe
+    def delete_slide_tool(slide_index: int) -> dict:
+        """Remove a slide from the bound presentation."""
+        target, prs = _open_for_write()
+        result = pptx_ops.delete_slide(prs, slide_index)
+        prs.save(str(target))
+        return result
+
+    @mcp.tool(name="reorder_slide")
+    @_safe
+    def reorder_slide_tool(slide_index: int, new_index: int) -> dict:
+        """Move a slide to a new position."""
+        target, prs = _open_for_write()
+        result = pptx_ops.reorder_slide(prs, slide_index, new_index)
+        prs.save(str(target))
+        return result
+
     return mcp

@@ -73,6 +73,15 @@ Add an entry like this to your Claude Desktop MCP config:
   bound target from `PPTX_TEMPLATE`.
 - `add_slide(layout_name, placeholders)` — append a slide using a named
   layout; only fills placeholders you supply.
+- `set_slide_placeholder(slide_index, placeholder_name, text)` — set a
+  placeholder on an existing slide by name.
+- `set_slide_placeholder_by_idx(slide_index, placeholder_idx, text)` —
+  set a placeholder by its layout idx.
+- `set_slide_title(slide_index, text)` — set the title placeholder of a
+  slide.
+- `delete_slide(slide_index)` — remove a slide.
+- `reorder_slide(slide_index, new_index)` — move a slide to a new
+  position.
 
 ## Recommended companion skill
 

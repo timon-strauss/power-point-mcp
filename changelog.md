@@ -5,6 +5,44 @@ All notable changes to power-point-mcp will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] — 2026-06-18
+
+Mutation iteration. Adds the ability to modify and reorder existing slides
+without breaking the single-file boundary or hallucinating text.
+
+### Added
+- `set_slide_placeholder(slide_index, placeholder_name, text)` — set a
+  placeholder by name. Reports `previous_text` and warns when multiple
+  placeholders share a name (first match wins).
+- `set_slide_placeholder_by_idx(slide_index, placeholder_idx, text)` —
+  same, keyed on `placeholder_format.idx` for templates with non-unique
+  placeholder names.
+- `set_slide_title(slide_index, text)` — convenience wrapper that
+  resolves the title via `slide.shapes.title` with an idx-0 fallback.
+  Errors loudly on slides with no title placeholder.
+- `delete_slide(slide_index)` — remove a slide via the documented
+  `prs.slides._sldIdLst` workaround; isolated to a single helper.
+- `reorder_slide(slide_index, new_index)` — move a slide; `new_index`
+  is clamped to the valid range; same-index calls are no-ops.
+
+### Changed
+- `pyproject.toml`: `version = 0.2.0`; pinned `python-pptx>=1.0.2,<2`
+  to bound the private-API hazard from `_sldIdLst`.
+- `src/power_point_mcp/__init__.py`: `__version__ = "0.2.0"`.
+- `README.md`: tools section lists all ten tools.
+
+### Tests
+- New `tests/test_pptx_mutations.py` for delete/reorder.
+- `tests/test_pptx_ops.py` extended with placeholder/title tests.
+- `tests/test_server_e2e.py` extended with title-set, delete, reorder,
+  and bad-index error-path tests. Suite is now 39 tests, ~1 s.
+
+### Known limitations
+- `delete_slide` leaves the slide part as an orphan in the .pptx
+  package. PowerPoint and python-pptx tolerate this; cleanup deferred.
+- No run-level formatting (bold/italic/colour) or shape-level edits
+  yet — those land in iteration 3.
+
 ## [0.1.0] — 2026-06-18
 
 First iteration. Read-mostly MCP server bound to a single PowerPoint file.

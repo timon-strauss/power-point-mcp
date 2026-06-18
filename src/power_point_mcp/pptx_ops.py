@@ -212,3 +212,130 @@ def add_slide(
         "populated": populated,
         "warnings": warnings,
     }
+
+
+def _sld_id_elements(prs):
+    """Return the list of <p:sldId> elements (private API chokepoint)."""
+    return list(prs.slides._sldIdLst)
+
+
+def set_slide_placeholder(
+    prs: PresentationType, slide_index: int, placeholder_name: str, text: str
+) -> dict:
+    if slide_index < 0 or slide_index >= len(prs.slides):
+        raise IndexError(f"slide_index {slide_index} out of range")
+    slide = prs.slides[slide_index]
+    matches = [ph for ph in slide.placeholders if ph.name == placeholder_name]
+    if not matches:
+        raise KeyError(
+            f"no placeholder named {placeholder_name!r} on slide {slide_index}"
+        )
+    ph = matches[0]
+    if not ph.has_text_frame:
+        raise ValueError(f"placeholder {placeholder_name!r} has no text frame")
+    previous = ph.text_frame.text
+    ph.text_frame.text = text
+    warnings: list[str] = []
+    if len(matches) > 1:
+        warnings.append(
+            f"multiple placeholders named {placeholder_name!r}; first one used"
+        )
+    return {
+        "slide_index": slide_index,
+        "placeholder_name": placeholder_name,
+        "placeholder_idx": ph.placeholder_format.idx,
+        "previous_text": previous,
+        "new_text": text,
+        "warnings": warnings,
+    }
+
+
+def set_slide_placeholder_by_idx(
+    prs: PresentationType, slide_index: int, placeholder_idx: int, text: str
+) -> dict:
+    if slide_index < 0 or slide_index >= len(prs.slides):
+        raise IndexError(f"slide_index {slide_index} out of range")
+    slide = prs.slides[slide_index]
+    for ph in slide.placeholders:
+        if ph.placeholder_format.idx == placeholder_idx:
+            if not ph.has_text_frame:
+                raise ValueError(
+                    f"placeholder idx {placeholder_idx} has no text frame"
+                )
+            previous = ph.text_frame.text
+            ph.text_frame.text = text
+            return {
+                "slide_index": slide_index,
+                "placeholder_idx": placeholder_idx,
+                "placeholder_name": ph.name,
+                "previous_text": previous,
+                "new_text": text,
+            }
+    raise KeyError(
+        f"no placeholder with idx {placeholder_idx} on slide {slide_index}"
+    )
+
+
+def set_slide_title(prs: PresentationType, slide_index: int, text: str) -> dict:
+    if slide_index < 0 or slide_index >= len(prs.slides):
+        raise IndexError(f"slide_index {slide_index} out of range")
+    slide = prs.slides[slide_index]
+    title = slide.shapes.title
+    if title is None:
+        # fallback: placeholder with idx 0
+        for ph in slide.placeholders:
+            if ph.placeholder_format.idx == 0:
+                title = ph
+                break
+    if title is None or not title.has_text_frame:
+        raise KeyError(f"slide {slide_index} has no title placeholder")
+    previous = title.text_frame.text
+    title.text_frame.text = text
+    return {
+        "slide_index": slide_index,
+        "placeholder_name": title.name,
+        "previous_text": previous,
+        "new_text": text,
+    }
+
+
+def delete_slide(prs: PresentationType, slide_index: int) -> dict:
+    elements = _sld_id_elements(prs)
+    if slide_index < 0 or slide_index >= len(elements):
+        raise IndexError(f"slide_index {slide_index} out of range")
+    sld_id_lst = prs.slides._sldIdLst
+    target = elements[slide_index]
+    # drop the relationship from the presentation part
+    rId = target.attrib.get(
+        "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
+    )
+    sld_id_lst.remove(target)
+    if rId:
+        try:
+            prs.part.drop_rel(rId)
+        except Exception:
+            pass
+    return {"deleted_index": slide_index, "remaining_slide_count": len(prs.slides)}
+
+
+def reorder_slide(
+    prs: PresentationType, slide_index: int, new_index: int
+) -> dict:
+    elements = _sld_id_elements(prs)
+    n = len(elements)
+    if slide_index < 0 or slide_index >= n:
+        raise IndexError(f"slide_index {slide_index} out of range")
+    # clamp new_index
+    new_index = max(0, min(new_index, n - 1))
+    if new_index == slide_index:
+        return {"old_index": slide_index, "new_index": new_index, "slide_count": n}
+    sld_id_lst = prs.slides._sldIdLst
+    target = elements[slide_index]
+    sld_id_lst.remove(target)
+    # re-grab elements after removal to find the right insertion point
+    remaining = list(sld_id_lst)
+    if new_index >= len(remaining):
+        sld_id_lst.append(target)
+    else:
+        sld_id_lst.insert(list(sld_id_lst).index(remaining[new_index]), target)
+    return {"old_index": slide_index, "new_index": new_index, "slide_count": n}
